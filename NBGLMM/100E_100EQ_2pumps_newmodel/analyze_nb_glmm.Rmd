@@ -1,0 +1,422 @@
+---
+title: "analyze_nb_glmm"
+author: "Kathleen T Quach"
+date: "2024-12-27"
+output: html_document
+---
+
+```{r}
+# -------
+# Purpose
+# -------
+# Fit a negative binomial generalized linear mixed model (GLMM) to 
+# count data (licks) that has interacting fixed effects (laser, time bins) and random 
+# effects (animal id, bout number nested in animal id). Assess the effect of model
+# modifications on goodness of fit. Use the final model for pairwise comparisons 
+# between laser-ON and laser-OFF conditions within each time bin. 
+
+# --------------
+# Load libraries 
+# --------------
+library(dplyr) 
+library(rstudioapi) 
+library(emmeans)
+library(ggplot2)
+library(glmmTMB) # For negative binomial GLMM
+library(svglite)
+
+# ---------
+# R version
+# ---------
+# 4.4.2
+
+# ---------------------
+# Set working directory
+# ---------------------
+# Dynamically set working directory to source of script
+original_wd = setwd(dirname(rstudioapi::getSourceEditorContext()$path))
+
+# ---------
+# Read data
+# ---------
+# Rows : Each row is an individual observation of lick count
+# Columns : animal_id, bout_num, time_bin, laser 
+
+dat = data.table::fread("reshaped_data.txt", header=TRUE)
+
+# -------------------
+# Factorize variables
+# -------------------
+dat$animal_id = as.factor(dat$animal_id)
+dat$bout_num = as.factor(dat$bout_num)
+dat$time_bin = as.factor(dat$time_bin)
+dat$laser = as.factor(dat$laser)
+```
+
+
+```{r}
+# -------------------------------------
+# Fit a standard negative binomial GLMM
+# -------------------------------------
+# Negative binomial models are often appropriate for modeling biological count data
+
+nb_glmm = glmmTMB(
+  licks ~ laser * time_bin + (1 | animal_id / bout_num), 
+  family=nbinom2, # quadratically increasing variance, most common for biological data
+  data=dat
+)
+summary(nb_glmm)
+```
+
+```{r}
+# ---------------------------
+# Fit a standard poisson GLMM
+# ---------------------------
+# Poisson models are simpler models of count data. To justify using a negative binomial 
+# model, show that it is has better goodness of fit than the poisson model. 
+
+poisson_glmm = glmmTMB(
+  licks ~ laser * time_bin + (1 | animal_id / bout_num), 
+  family=poisson, 
+  data=dat
+)
+summary(poisson_glmm)
+```
+
+
+```{r}
+# -----------------------------
+# Compare poisson and NB models
+# -----------------------------
+# Compare models using likelihood ratio test
+nb_signif = anova(poisson_glmm, nb_glmm)
+
+# Save and display results
+sink("nb_significance.txt", split = TRUE)
+print(nb_signif)
+sink()
+```
+
+```{r}
+# ---------------------------
+# Fit a zero-inflated NB GLMM
+# ---------------------------
+# Variance may be better captured by including zero-inflation in cases where count
+# data include lots of zeros. Observed zeros generally increase over time, so 
+# use temporal predictor for the zero inflation formula. If this model does not
+# converge, use a simpler model.
+
+# Update model by adding a zero-inflation parameter
+zi_nb_glmm = update(
+  nb_glmm, 
+  ziformula=~time_bin,
+  # In case of model convergence problems, use a more robust optimizer and increase iterations
+  control = glmmTMBControl(
+  optimizer = optim,
+  optArgs = list(method = "BFGS"), # "BFGS" and "Nelder-Mead"
+  optCtrl = list(maxit = 10000) # Increase the number of iterations
+  )
+)
+summary(zi_nb_glmm)
+```
+
+
+```{r}
+# -----------------------------------
+# Test for significant zero-inflation
+# -----------------------------------
+# Check if zero-inflation is significant by comparing models with and without 
+# zero-inflation. Proceed with the zero-inflated negative binomial GLMM only if 
+# if it has a lower AIC and if likelihood ratio test has a significant p-value. 
+# Otherwise, proceed with the standard negative binomial GLMM.
+
+# Compare models using likelihood ratio test
+zi_signif = anova(nb_glmm, zi_nb_glmm)
+
+# Save and display results
+sink("zero_inflation_significance.txt", split = TRUE)
+print(zi_signif)
+sink()
+
+```
+
+```{r}
+# -------------------------------------------
+# Compare predicted zeros with observed zeros
+# -------------------------------------------
+# A ZI-NB GLMM is justified only it does a better job of predicting 
+# zeros compared to the standard model.
+
+# Calculate observed proportion of zeros
+observed_zeros <- dat %>%
+  group_by(time_bin) %>%
+  summarise(observed_zeros = mean(licks == 0))
+
+# NB GLMM: Predicted probabilities for zero counts
+predicted_probs_nb <- predict(nb_glmm, type = "response") # Predicted mean for NB GLMM
+
+# Add predictions back to the dataset
+dat <- dat %>%
+  mutate(predicted_zeros_nb = exp(-predicted_probs_nb))
+
+# Calculate predicted proportion of zeros for each time bin for NB GLMM
+predicted_zeros_nb <- dat %>%
+  group_by(time_bin) %>%
+  summarise(predicted_zeros_nb = mean(predicted_zeros_nb))
+
+# ZI-NB GLMM: Predicted zero-inflation probabilities
+zi_probs <- predict(zi_nb_glmm, type = "zprob") # Zero-inflation probability
+count_probs_zi <- predict(zi_nb_glmm, type = "response") # Predicted mean for ZI-NB GLMM
+
+# Add predictions back to the dataset
+dat <- dat %>%
+  mutate(predicted_zeros_zi_nb = zi_probs + (1 - zi_probs) * exp(-count_probs_zi))
+
+# Calculate predicted proportion of zeros for each time bin for ZI-NB GLMM
+predicted_zeros_zi_nb <- dat %>%
+  group_by(time_bin) %>%
+  summarise(predicted_zeros_zi_nb = mean(predicted_zeros_zi_nb))
+
+# Combine all data into a single data frame
+zeros_comparison <- observed_zeros %>%
+  left_join(predicted_zeros_nb, by = "time_bin") %>%
+  left_join(predicted_zeros_zi_nb, by = "time_bin")
+
+# Print the combined data frame
+print("Comparison of zeros:")
+print(zeros_comparison)
+write.table(zeros_comparison, "observed_predicted_zeros.txt", row.names=FALSE, sep="\t")
+
+```
+
+
+
+```{r}
+# --------------
+# Plot residuals
+# --------------
+# Use the ZI-NB GLMM only if it shows signs of a better fit: 
+# - reduces the fan-shaped pattern present in the NB GLMM (sign of improved fit for overdispersion)
+# - spread of residuals is more homogeneous for the ZI-NB GLMM.
+
+par(mfrow = c(1, 2))
+plot(predict(nb_glmm), residuals(nb_glmm, type="pearson"), main="NB GLMM Residuals")
+plot(predict(zi_nb_glmm), residuals(zi_nb_glmm, type="pearson"), main="ZI-NB GLMM Residuals")
+```
+```{r}
+# --------------------
+# Check overdispersion
+# --------------------
+# Overdispersion is a key assumption of a negative binomial model. NB models are
+# better than Poisson models at modeling overdispersed count data.
+
+# An overdispersion ratio of ~1 indicates that variance in the data aligns well 
+# with the variance assumed by the model. 
+
+# Exclude models if the overdispersion ratio is much lower or higher than 1 (<0.5, >1.5), 
+# even if they have better goodness-of-fit as indicated by the LRT and residuals plots. 
+
+poisson_overdispersion <- sum(residuals(poisson_glmm, type = "pearson")^2) / df.residual(poisson_glmm)
+
+nb_overdispersion <- sum(residuals(nb_glmm, type = "pearson")^2) / df.residual(nb_glmm)
+
+zi_overdispersion <- sum(residuals(zi_nb_glmm, type = "pearson")^2) / df.residual(zi_nb_glmm)
+
+# Gather results into a data frame
+overdispersion_ratio = data.frame(model = c("poisson",
+                                            "nb_glmm",
+                                            "zi_nb_glmm"),
+                                  overdispersion_ratio = c(poisson_overdispersion,
+                                                           nb_overdispersion, 
+                                                           zi_overdispersion))
+
+print(overdispersion_ratio)
+write.table(overdispersion_ratio, "overdispersion_ratio.txt", row.names=FALSE, sep="\t")
+```
+
+```{r}
+# ------------------------------
+# Manually determine final model
+# ------------------------------
+
+# DATASET-SPECIFIC ASSESSMENT of ZI-NB GLMM: 
+# - high overdispersion ratio
+# - does not predict zeros better than standard model
+# - use standard NB GLMM
+
+
+# Manually enter the final model you want to use for statistical analysis. 
+final_model = nb_glmm # <---------- ENTER FINAL MODEL HERE
+
+# Save final model
+
+sink("final_model.txt")
+print(summary(final_model))
+sink()
+```
+
+
+
+```{r}
+# --------------------------------
+# Test for significant interaction
+# --------------------------------
+# To test for significant interaction between laser condition and time bins, 
+# compare the current best model with a reduced model without interaction. 
+
+# Update model by removing interaction
+no_interaction_model = update(
+  final_model, 
+  formula = licks ~ laser + time_bin + (1 | animal_id/bout_num)
+)
+
+# Compare models using likelihood ratio test
+interaction_signif = anova(no_interaction_model, final_model)
+
+# Save and display results
+sink("interaction_significance.txt", split = TRUE)
+print(interaction_signif)
+sink()
+```
+
+```{r}
+# ------------------------------------------
+# Test for significance of laser main effect
+# ------------------------------------------
+
+# Update model by removing laser
+no_laser_model = update(
+  final_model, 
+  formula = licks ~ time_bin + (1 | animal_id/bout_num)
+)
+
+# Compare models using likelihood ratio test
+laser_signif = anova(no_laser_model, final_model)
+
+# Save and display results
+sink("laser_significance.txt", split = TRUE)
+print(laser_signif)
+sink()
+```
+
+```{r}
+# ---------------------------------------------
+# Test for significance of time bin main effect
+# ---------------------------------------------
+
+# Update model by removing laser
+no_time_model = update(
+  final_model, 
+  formula = licks ~ laser + (1 | animal_id/bout_num)
+)
+
+# Compare models using likelihood ratio test
+time_signif = anova(no_time_model, final_model)
+
+# Save and display results
+sink("time_bin_significance.txt", split = TRUE)
+print(time_signif)
+sink()
+```
+
+
+
+```{r}
+# ---------------------------------------
+# Calculate p-values and predicted values
+# ---------------------------------------
+# The emmeans package automatically accounts for the dependency structure encoded 
+# in the model’s covariance matrix when performing pairwise comparisons.
+
+# Compute estimated marginal means for the interaction
+emm <- emmeans(final_model, ~ laser | time_bin)
+
+# Pairwise comparisons for laser_condition within each time_bin
+pairwise_comparisons = contrast(emm, method = "pairwise") 
+
+# Extract raw p-values
+raw_p_values <- summary(pairwise_comparisons)$p.value
+
+# Adjust p-values using BH method
+adjusted_p_values <- p.adjust(raw_p_values, method = "BH")
+
+# Add to pairwise comparisons output
+pairwise_results <- as.data.frame(summary(pairwise_comparisons))
+pairwise_results$adjusted_p_value <- adjusted_p_values
+
+# Calculate predicted licks and confidence intervals
+predicted_values = as.data.frame(emm)
+
+# ------------
+# Save results 
+# ------------
+print("Pairwise Comparisons Between On and Off:")
+print(pairwise_results)
+write.table(pairwise_results, "pairwise_comparisons.txt", row.names=FALSE, sep="\t")
+```
+
+
+```{r}
+print("Predicted Licks and Confidence Intervals:")
+print(predicted_values)
+write.table(predicted_values, "predicted_values.txt", row.names=FALSE, sep="\t")
+```
+
+
+
+```{r}
+# ---------------------
+# Plot predicted values
+# ---------------------
+palette = c("#b3c0c0","#56b4e9")
+
+plot = 
+  ggplot(predicted_values, 
+         aes(x=as.numeric(time_bin), y=emmean, color=laser, group=laser)) +
+  geom_line(linewidth=1) +
+  geom_point(size=2) +
+  # Plot SE
+  geom_errorbar(aes(ymin=emmean-SE, ymax=emmean+SE), width=0.2) +
+  # Plot CI
+  # geom_errorbar(aes(ymin=lower.CL, ymax=upper.CL), width=0.2) +
+  labs(
+    x="Time Bin",
+    y="log(Predicted Number of Licks)",
+    color="Laser Condition"
+  ) +
+  theme_minimal() +
+  # Color palette
+  scale_fill_manual(values=palette) +
+  scale_colour_manual(values=palette) +
+  # Remove background and gridlines
+  theme_bw() + 
+  theme(panel.border=element_blank(), 
+        panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(), 
+        axis.line=element_line(colour="black"))
+
+print(plot)
+
+# Save plot
+jpg_name = "predicted_plot.jpg"
+ggsave(file=jpg_name, 
+       plot=plot,
+       width=6, 
+       height=3)
+
+svg_name = "predicted_plot.svg"
+ggsave(file=svg_name, 
+       plot=plot,
+       width=6, 
+       height=3)
+```
+
+```{r}
+# --------------
+# Save workspace
+# --------------
+save.image(file="workspace.RData")
+```
+
+
+```{r}

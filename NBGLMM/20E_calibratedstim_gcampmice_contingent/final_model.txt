@@ -1,0 +1,61 @@
+ Family: nbinom2  ( log )
+Formula:          licks ~ laser * time_bin + (1 | animal_id/bout_num)
+Data: dat
+
+     AIC      BIC   logLik deviance df.resid 
+ 84278.1  84647.9 -42096.0  84192.1    40137 
+
+Random effects:
+
+Conditional model:
+ Groups             Name        Variance Std.Dev.
+ bout_num:animal_id (Intercept) 1.62095  1.2732  
+ animal_id          (Intercept) 0.02801  0.1674  
+Number of obs: 40180, groups:  bout_num:animal_id, 1045; animal_id, 13
+
+Dispersion parameter for nbinom2 family (): 0.568 
+
+Conditional model:
+                   Estimate Std. Error z value Pr(>|z|)    
+(Intercept)         1.57346    0.08036   19.58  < 2e-16 ***
+laseron             0.07118    0.07023    1.01 0.310759    
+time_bin2          -0.85289    0.07280  -11.71  < 2e-16 ***
+time_bin3          -1.28438    0.07490  -17.15  < 2e-16 ***
+time_bin4          -1.67678    0.07708  -21.75  < 2e-16 ***
+time_bin5          -2.03388    0.07935  -25.63  < 2e-16 ***
+time_bin6          -2.25974    0.08086  -27.95  < 2e-16 ***
+time_bin7          -2.43664    0.08206  -29.69  < 2e-16 ***
+time_bin8          -2.73349    0.08506  -32.14  < 2e-16 ***
+time_bin9          -2.87311    0.08647  -33.23  < 2e-16 ***
+time_bin10         -3.06841    0.08843  -34.70  < 2e-16 ***
+time_bin11         -3.22620    0.09080  -35.53  < 2e-16 ***
+time_bin12         -3.52484    0.09502  -37.10  < 2e-16 ***
+time_bin13         -3.51035    0.09477  -37.04  < 2e-16 ***
+time_bin14         -3.54737    0.09534  -37.21  < 2e-16 ***
+time_bin15         -3.82375    0.10050  -38.05  < 2e-16 ***
+time_bin16         -3.91063    0.10261  -38.11  < 2e-16 ***
+time_bin17         -3.90691    0.10426  -37.47  < 2e-16 ***
+time_bin18         -4.17106    0.11062  -37.71  < 2e-16 ***
+time_bin19         -4.35016    0.11573  -37.59  < 2e-16 ***
+time_bin20         -4.22548    0.11253  -37.55  < 2e-16 ***
+laseron:time_bin2  -0.06117    0.10179   -0.60 0.547888    
+laseron:time_bin3  -0.03341    0.10406   -0.32 0.748134    
+laseron:time_bin4   0.09488    0.10604    0.89 0.370946    
+laseron:time_bin5   0.32279    0.10779    2.99 0.002749 ** 
+laseron:time_bin6   0.35734    0.10934    3.27 0.001082 ** 
+laseron:time_bin7   0.38433    0.11054    3.48 0.000508 ***
+laseron:time_bin8   0.51971    0.11322    4.59 4.43e-06 ***
+laseron:time_bin9   0.46568    0.11503    4.05 5.16e-05 ***
+laseron:time_bin10  0.57731    0.11660    4.95 7.37e-07 ***
+laseron:time_bin11  0.58258    0.11916    4.89 1.01e-06 ***
+laseron:time_bin12  0.79995    0.12265    6.52 6.94e-11 ***
+laseron:time_bin13  0.68223    0.12318    5.54 3.05e-08 ***
+laseron:time_bin14  0.60042    0.12440    4.83 1.39e-06 ***
+laseron:time_bin15  0.80652    0.12884    6.26 3.85e-10 ***
+laseron:time_bin16  0.70730    0.13186    5.36 8.13e-08 ***
+laseron:time_bin17  0.62843    0.13408    4.69 2.77e-06 ***
+laseron:time_bin18  0.85765    0.13934    6.15 7.51e-10 ***
+laseron:time_bin19  0.98137    0.14404    6.81 9.56e-12 ***
+laseron:time_bin20  0.76545    0.14257    5.37 7.93e-08 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1

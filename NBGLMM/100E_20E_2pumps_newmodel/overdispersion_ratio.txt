@@ -1,0 +1,4 @@
+"model"	"overdispersion_ratio"
+"poisson"	2.43698396969163
+"nb_glmm"	1.16990425208775
+"zi_nb_glmm"	4.92103041659537

@@ -1,0 +1,9 @@
+Data: dat
+Models:
+no_time_model: licks ~ laser + (1 | animal_id/bout_num), zi=~0, disp=~1
+final_model: licks ~ laser * time_bin + (1 | animal_id/bout_num), zi=~0, disp=~1
+              Df   AIC   BIC logLik deviance  Chisq Chi Df Pr(>Chisq)    
+no_time_model  5 94147 94190 -47068    94137                             
+final_model   43 84278 84648 -42096    84192 9944.7     38  < 2.2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1

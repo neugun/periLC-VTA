@@ -1,0 +1,7 @@
+Data: dat
+Models:
+nb_glmm: licks ~ laser * time_bin + (1 | animal_id/bout_num), zi=~0, disp=~1
+zi_nb_glmm: licks ~ laser * time_bin + (1 | animal_id/bout_num), zi=~time_bin, disp=~1
+           Df   AIC   BIC logLik deviance Chisq Chi Df Pr(>Chisq)
+nb_glmm    43 32126 32458 -16020    32040                        
+zi_nb_glmm 63                                       20           

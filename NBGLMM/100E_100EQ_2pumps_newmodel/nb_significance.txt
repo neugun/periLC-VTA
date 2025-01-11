@@ -1,0 +1,9 @@
+Data: dat
+Models:
+poisson_glmm: licks ~ laser * time_bin + (1 | animal_id/bout_num), zi=~0, disp=~1
+nb_glmm: licks ~ laser * time_bin + (1 | animal_id/bout_num), zi=~0, disp=~1
+             Df     AIC     BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)    
+poisson_glmm 42 10061.9 10325.8 -4988.9   9977.9                             
+nb_glmm      43  9353.9  9624.1 -4634.0   9267.9 709.94      1  < 2.2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1

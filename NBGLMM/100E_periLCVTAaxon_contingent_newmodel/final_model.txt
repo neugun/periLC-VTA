@@ -1,0 +1,85 @@
+ Family: nbinom2  ( log )
+Formula:          licks ~ laser * time_bin + (1 | animal_id/bout_num)
+Zero inflation:         ~time_bin
+Data: dat
+
+     AIC      BIC   logLik deviance df.resid 
+  5688.5   6062.5  -2781.2   5562.5     2737 
+
+Random effects:
+
+Conditional model:
+ Groups             Name        Variance Std.Dev.
+ bout_num:animal_id (Intercept) 1.3712   1.1710  
+ animal_id          (Intercept) 0.2261   0.4755  
+Number of obs: 2800, groups:  bout_num:animal_id, 84; animal_id, 4
+
+Dispersion parameter for nbinom2 family ():  5.9 
+
+Conditional model:
+                   Estimate Std. Error z value Pr(>|z|)    
+(Intercept)          0.5727     0.3150   1.818 0.069061 .  
+laseron             -0.3998     0.1526  -2.620 0.008790 ** 
+time_bin2           -0.4984     0.1662  -2.998 0.002714 ** 
+time_bin3           -0.1904     0.1612  -1.181 0.237723    
+time_bin4           -0.2720     0.1606  -1.694 0.090339 .  
+time_bin5           -0.2117     0.1602  -1.322 0.186172    
+time_bin6           -0.2935     0.1614  -1.818 0.069104 .  
+time_bin7           -0.2456     0.1633  -1.504 0.132550    
+time_bin8           -0.3631     0.1659  -2.189 0.028576 *  
+time_bin9           -0.1226     0.1618  -0.758 0.448648    
+time_bin10          -0.2532     0.1688  -1.500 0.133597    
+time_bin11          -0.3053     0.1724  -1.771 0.076534 .  
+time_bin12          -0.3124     0.1752  -1.784 0.074490 .  
+time_bin13          -0.2467     0.1715  -1.438 0.150357    
+time_bin14          -0.3232     0.1740  -1.858 0.063201 .  
+time_bin15          -0.4811     0.1796  -2.679 0.007381 ** 
+time_bin16          -0.3898     0.1756  -2.220 0.026411 *  
+time_bin17          -0.2009     0.1719  -1.168 0.242689    
+time_bin18          -0.5023     0.1835  -2.737 0.006193 ** 
+time_bin19          -0.5836     0.1897  -3.077 0.002092 ** 
+time_bin20          -0.3651     0.1883  -1.939 0.052472 .  
+laseron:time_bin2   -0.6594     0.2667  -2.473 0.013413 *  
+laseron:time_bin3   -0.6551     0.2959  -2.214 0.026843 *  
+laseron:time_bin4   -1.3359     0.2847  -4.693 2.70e-06 ***
+laseron:time_bin5   -0.9851     0.2585  -3.811 0.000139 ***
+laseron:time_bin6   -1.1979     0.2788  -4.297 1.73e-05 ***
+laseron:time_bin7   -1.1399     0.2966  -3.843 0.000121 ***
+laseron:time_bin8   -1.2635     0.2947  -4.287 1.81e-05 ***
+laseron:time_bin9   -1.3760     0.3055  -4.505 6.65e-06 ***
+laseron:time_bin10  -1.6273     0.3245  -5.015 5.31e-07 ***
+laseron:time_bin11  -1.6022     0.3375  -4.748 2.06e-06 ***
+laseron:time_bin12  -1.1331     0.3428  -3.305 0.000948 ***
+laseron:time_bin13  -1.7139     0.3560  -4.814 1.48e-06 ***
+laseron:time_bin14  -1.8645     0.3713  -5.022 5.12e-07 ***
+laseron:time_bin15  -1.3572     0.3579  -3.792 0.000150 ***
+laseron:time_bin16  -1.9609     0.3894  -5.036 4.76e-07 ***
+laseron:time_bin17  -2.1599     0.4024  -5.367 7.99e-08 ***
+laseron:time_bin18  -1.6899     0.3933  -4.296 1.74e-05 ***
+laseron:time_bin19  -1.5243     0.3850  -3.960 7.51e-05 ***
+laseron:time_bin20  -1.5278     0.3897  -3.920 8.85e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Zero-inflation model:
+            Estimate Std. Error z value Pr(>|z|)
+(Intercept)   -14.16     100.59  -0.141    0.888
+time_bin2      11.89     100.60   0.118    0.906
+time_bin3      13.11     100.60   0.130    0.896
+time_bin4      12.14     100.60   0.121    0.904
+time_bin5      12.18     100.60   0.121    0.904
+time_bin6      12.29     100.60   0.122    0.903
+time_bin7      12.85     100.60   0.128    0.898
+time_bin8      12.61     100.60   0.125    0.900
+time_bin9      12.99     100.60   0.129    0.897
+time_bin10     13.11     100.60   0.130    0.896
+time_bin11     13.32     100.60   0.132    0.895
+time_bin12     13.55     100.59   0.135    0.893
+time_bin13     13.34     100.60   0.133    0.895
+time_bin14     13.28     100.60   0.132    0.895
+time_bin15     13.40     100.60   0.133    0.894
+time_bin16     13.21     100.60   0.131    0.896
+time_bin17     13.46     100.60   0.134    0.894
+time_bin18     13.49     100.60   0.134    0.893
+time_bin19     13.58     100.60   0.135    0.893
+time_bin20     14.00     100.59   0.139    0.889
