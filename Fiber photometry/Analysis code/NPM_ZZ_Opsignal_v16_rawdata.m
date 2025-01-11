@@ -13,7 +13,7 @@
     Half = [0];
     Time_boundary = 3600*2; % 2hr recording
 
-    fit_exp  = 0; %% fit_exp = 2 for local linear fit with multiple chunks; fit_exp = 0;  using local linear fit;
+    fit_exp  = 2; %% fit_exp = 2 for local linear fit with multiple 5-min chunks; fit_exp = 0;  using local linear fit;
     fix_singlespout = 0;
     Detectionerror = 0; 
     mergelick = 0; 
@@ -24,7 +24,7 @@
     odor_time = basal_time*Ratio_post;
     control_time = [-basal_time,-basal_time+2]; 
    
-    plot_415 = 1; 
+    plot_415 = 0; 
     threshold_415 = 0; 
     offset = 0;       
     heatmap = 1;
