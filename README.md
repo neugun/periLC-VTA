@@ -15,7 +15,6 @@
       * [Contributors](#contributors)
 
 ## Description #
-
 The analysis code and data associated with Zhu et al. "Hedonic eating is controlled by dopamine neurons that oppose GLP-1R satiety", Science, in revision .  <br/><br/>
 ![](/Diagrams/Figure_abstract_V8.png)
 
@@ -33,20 +32,19 @@ Analysis are based on MATLAB R2022B and R studio;
 - See more details in [periLC paper](https://www.sciencedirect.com/science/article/pii/S0092867420309399), and [CaRMA paper](https://www.science.org/doi/10.1126/science.abb2494). <br/>
 
 ### Photometry analysis #
-![](/Diagrams/3DseqFISH_diagram_v1_WARPMASK.png)
 - To extract and analyze the fiber photometry data, we used the commercial fiber photometry FP3002 system (Neurophotometrics, CA). Using this setup, fluorescent signals and behavioral events were collected using a custom Bonsai workflow. Fiber-photometry recordings and associated behavioral data were analyzed using MATLAB.
 
 ### NBGLMM #
-- In the comparison of distributions of lick rate during variable palatability session, photostimulation, and photoinhibition, we used the glmmTMB package in R (https://cran.r-project.org/web/packages/glmmTMB/index.html) to fit negative binomial generalized linear mixed models (NB GLMM) to evaluate the effect of treatment condition (e.g., laser on vs. off) on lick number across time bins.
+- In the comparison of distributions of lick rate during variable palatability session, photostimulation, and photoinhibition, we used the glmmTMB package in [R] (https://cran.r-project.org/web/packages/glmmTMB/index.html) to fit negative binomial generalized linear mixed models (NB GLMM) to evaluate the effect of treatment condition (e.g., laser on vs. off) on lick number across time bins.<br/>
 - More details for each comparison can be found inside the NBGLMM folders. <br/>
 
 ## Data #
 
 ### Example photometry data #
-- We provide the related fiber photometry data of a example mouse () for testing the 3D registration. More detailed data can be sent to a request to authors. <br/>
+- We provide the related fiber photometry data of example mice for signal extraction. Additional data request can be sent to authors. <br/>
 
 ### Source data #
-- Source data for each figures are provided here.
+- Source data for each figures are also provided.
 
 ## Additional information #
 
@@ -55,7 +53,7 @@ Analysis are based on MATLAB R2022B and R studio;
 **Hedonic eating is controlled by dopamine neurons that oppose GLP-1R satiety** <br/>
 *Zhenggang Zhu, Rong Gong, Vicente Rodriguez, Kathleen T. Quach, Xinyu Chen,
 Scott M. Sternson* <br/>
-https://doi.org/10.5281/zenodo.14679761
+[zenodo](https://doi.org/10.5281/zenodo.14679761)
 
 ### Contributors#
 Zhenggang Zhu <br/>
