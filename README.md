@@ -49,7 +49,7 @@ This repository contains the analysis code and data associated with Zhu et al., 
 **Hedonic eating is controlled by dopamine neurons that oppose GLP-1R satiety** <br/>
 *Zhenggang Zhu, Rong Gong, Vicente Rodriguez, Kathleen T. Quach, Xinyu Chen,
 Scott M. Sternson* <br/>
-[zenodo](https://doi.org/10.5281/zenodo.14679761)
+[zenodo](https://doi.org/10.5281/zenodo.14680708)
 
 ### Contributors#
 Zhenggang Zhu <br/>
