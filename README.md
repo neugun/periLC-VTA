@@ -15,37 +15,36 @@
       * [Contributors](#contributors)
 
 ## Description #
-The analysis code and data associated with Zhu et al. "Hedonic eating is controlled by dopamine neurons that oppose GLP-1R satiety", Science, in revision .  <br/><br/>
+This repository contains the analysis code and data associated with Zhu et al., "Hedonic eating is controlled by dopamine neurons that oppose GLP-1R satiety," Science (in revision).<br/>
 ![](/Diagrams/Figure_abstract_V8.png)
 
 ### Updates #
-- Released the github page, code and data on 01/06/25. <br/>
+- Released the GitHub page, code, and data on 01/06/25. <br/>
 
 ### Installation #
-Data collection are based on Arduino and Bonsai;
-Analysis are based on MATLAB R2022B and R studio;
+- Data Collection: Based on Arduino and Bonsai.
+- Analysis: Conducted using MATLAB R2022B and RStudio.
 
 ## Modules #
 
 ### Data collection #
-- To extract and analyze the behavior data, behavioral events were collected using a custom Arduino code. Behavioral data were analyzed using MATLAB.
-- See more details in [periLC paper](https://www.sciencedirect.com/science/article/pii/S0092867420309399), and [CaRMA paper](https://www.science.org/doi/10.1126/science.abb2494). <br/>
+- Behavioral data were collected using custom Arduino code to extract and analyze behavioral events. These data were analyzed using MATLAB.
+- For more details, see the code and details in the [periLC paper](https://www.sciencedirect.com/science/article/pii/S0092867420309399), and the [CaRMA paper](https://www.science.org/doi/10.1126/science.abb2494). <br/>
 
 ### Photometry analysis #
-- To extract and analyze the fiber photometry data, we used the commercial fiber photometry FP3002 system (Neurophotometrics, CA). Using this setup, fluorescent signals and behavioral events were collected using a custom Bonsai workflow. Fiber-photometry recordings and associated behavioral data were analyzed using MATLAB.
+- Fiber photometry data were recorded and extracted using the [FP3002 system (Neurophotometrics, CA)](https://neurophotometrics.com/). Fluorescent signals and behavioral events were collected with a [Bonsai workflow] (https://bonsai-rx.org/docs/index.html). MATLAB was used to analyze fiber-photometry recordings and associated behavioral data.
 
 ### NBGLMM #
-- In the comparison of distributions of lick rate during variable palatability session, photostimulation, and photoinhibition, we used the glmmTMB package in [R]
-(https://cran.r-project.org/web/packages/glmmTMB/index.html) to fit negative binomial generalized linear mixed models (NB GLMM) to evaluate the effect of treatment condition (e.g., laser on vs. off) on lick number across time bins.<br/>
-- More details for each comparison can be found inside the NBGLMM folders. <br/>
+- To compare distributions of lick rates during variable palatability sessions, photostimulation, and photoinhibition, we used the glmmTMB package in R. This package fits negative binomial generalized linear mixed models (NB GLMM) to evaluate the effect of treatment conditions (e.g., laser on vs. off) on lick counts across time bins.<br/>
+- Detailed comparisons for each condition are provided in the NBGLMM folder. <br/>
 
 ## Data #
 
 ### Photometry data #
-- We provide the related fiber photometry data of example mice for signal extraction. Additional data request can be sent to authors. <br/>
+- This repository includes related fiber photometry data from example mice for signal extraction. For additional data requests, please contact the authors. <br/>
 
 ### Source data #
-- Source data for each figures are also provided.
+- Source data for each figure are also provided.
 
 ## Additional information #
 
