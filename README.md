@@ -14,7 +14,7 @@
       * [Contributors](#contributors)
 
 ## Description #
-This repository contains the analysis code and data associated with Zhu et al., "Hedonic eating is controlled by dopamine neurons that oppose GLP-1R satiety," Science (in revision).<br/>
+This repository contains the analysis code and data associated with Zhu et al., "Hedonic eating is controlled by dopamine neurons that oppose GLP-1R satiety"<br/>
 ![](/Diagrams/Figure_abstract_V8.png)
 
 ### Updates #
