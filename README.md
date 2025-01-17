@@ -32,7 +32,7 @@ This repository contains the analysis code and data associated with Zhu et al., 
 - For more details, see the code and details in the [periLC paper](https://www.sciencedirect.com/science/article/pii/S0092867420309399), and the [CaRMA paper](https://www.science.org/doi/10.1126/science.abb2494). <br/>
 
 ### Photometry analysis #
-- Fiber photometry data were recorded and extracted using the [FP3002 system (Neurophotometrics, CA)](https://neurophotometrics.com/). Fluorescent signals and behavioral events were collected with a [Bonsai workflow] (https://bonsai-rx.org/). MATLAB was used to analyze fiber-photometry recordings and associated behavioral data.
+- Fiber photometry data were recorded and extracted using the [FP3002 system (Neurophotometrics, CA)](https://neurophotometrics.com/). Fluorescent signals and behavioral events were collected with a [Bonsai workflow](https://bonsai-rx.org/). MATLAB was used to analyze fiber-photometry recordings and associated behavioral data.
 
 ### NBGLMM #
 - To compare distributions of lick rates during variable palatability sessions, photostimulation, and photoinhibition, we used the glmmTMB package in R. This package fits negative binomial generalized linear mixed models (NB GLMM) to evaluate the effect of treatment conditions (e.g., laser on vs. off) on lick counts across time bins.<br/>
