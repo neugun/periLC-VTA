@@ -1,16 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Written by Rong/Zhenggang
-%% 
-% clear all;
-% clc;
-% close all;
-% 
-% 
-% %% read licking data from the Evt file
-% strEventFn = "X:\EventlogData\8_30_2023\ZXC_80.evt";
-% stEventData = ParseEventFile_2mice(strEventFn);
-% lick = stEventData.Licking.Time_S* 2 * 10^-2;
-
+% Written by Rong Gong/Zhenggang Zhu
 
 function Feed_info = Boutinfo(lick,Feed,minILI11)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -152,32 +141,6 @@ boutIBI_all{kk,ANM} = boutILI1/1000;
 end
 end
 end
-
-
-%% figure 2  
-% subplot (2,1,2)
-% ANM = 1;
-% X = boutStart_all{1,ANM};
-% X1 = boutDuration_all{1,ANM};
-% for Tiii=1:length(X)
-% rectangle('Position',[X(Tiii),7,X1(Tiii),1],'EdgeColor',[0 0 0],'facecolor',[0 0 0]);
-% end
-% hold on;
-% % %% add the opto on/off plot
-% % 
-% % Opto_stim = stEventData.ON_OFFBlocks.Time_S* 2 * 10^-2/1000;
-% % X1 = 120;
-% % for Tiii=1:length(Opto_stim)
-% % rectangle('Position',[Opto_stim(Tiii),7.5,X1,1],'EdgeColor',[0 0 1],'facecolor',[0 0 1]);
-% % end
-% 
-% set(gca,'YTickLabel','', 'YTick', [])
-% xlabel('Time (s)')
-% ylabel('Bout raster')
-% box off
-% hold on
-% set(gcf, 'color', [1 1 1])
-% linkaxes([ax1 ax2],'x')
 
 
 clearvars -except minILI11 lick Feed Opto_stim ... 

@@ -1,29 +1,34 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Written by Zhenggang Zhu/Rong Gong
 
     clear all;
     load ZZColormaps;  
+
+    %% Switch analysis between GRAB-DA and GCaMP 
+    fit_exp  = 2; %% fit_exp = 2 for GRAB-DA: multiple 5-min chunks; fit_exp = 0 for GCaMP 
+
+    %% Switch analysis between whole or seperate two blocks analysis
+    Period_show = 3; %% Period_show = 3 for the whole session; Period_show = 1:2 for seperate two blocks
+
+    %% keep below Para as default
     Load_data = 1; 
-    Beh_var = 'Lick1'; % 'Lick0' Behavioral inputs 'Lick1' in the left spout(original) or 'Lick0' in the right spout
+    Beh_var = 'Lick1'; % Behavioral inputs 
     Beh_var_0 = 'Lick0';
-    Beh_edit = 0; % Gcamp1# mice day1 need set to 1 to edit behaviors, otherwise set to 0
+    Beh_edit = 0; % Set to 0
     FP.min_lick_interval = 5; 
     FP.min_lick_interval2 = FP.min_lick_interval; 
     Bout_criteria = 0.2; 
     z_score = 2;
-    Halves = [0];% [0:2] 0/4 for 0-2hr; 
+    Halves = [0];% 0 for 0-2hr; 
     Half = [0];
-    Time_boundary = 3600*2; % 2hr recording
-
-    fit_exp  = 2; %% fit_exp = 2 for local linear fit with multiple 5-min chunks; fit_exp = 0;  using local linear fit;
+    Time_boundary = 3600*2; % for 2hr recording
     fix_singlespout = 0;
     Detectionerror = 0; 
     mergelick = 0; 
-
-    Period_show = 3; 
     basal_time = 5;
     Ratio_post = 4;
     odor_time = basal_time*Ratio_post;
     control_time = [-basal_time,-basal_time+2]; 
-   
     plot_415 = 0; 
     threshold_415 = 0; 
     offset = 0;       
@@ -35,6 +40,7 @@
     intervalLength = 120*1;  % Length of each interval in seconds
     False_time = [];
     
+        %% Reload and recompute
         Lickrt_S=[];
         Lickrt_No=[];
         avgS=[];
@@ -46,7 +52,6 @@
         ILI_OFF=[];
         ILI_S=[];
 
-        %% Reload and recompute
             %% import the raw signals
             % NOTE: Current Folder must contain photometry data
             % Define the fiberphotometry data
@@ -74,7 +79,7 @@
             Time = FP.raw(FP.raw(:,3)==2,2);
             Duration = max(Time)-min(Time);
 
-            %% the licking data is not match to the NPM in recent recordings
+            %% when the licking data is not match to the NPM in recent recordings
             filePattern = 'Delta*.csv';
             files = dir(fullfile(filePattern));
             if ~isempty(files)
@@ -86,9 +91,8 @@
             %%create new array with deinterleaved data
             Chn = size(FP.raw,2);
             FP.data(:,1) = FP.raw(FP.raw(:,3)==2,2); %system time when 470 LED is on
-        %     figure; plot(FP.raw(FP.raw(:,3)==0,10))
  
-                    %% 
+            %% 
             filePattern = 'LickAndFeed*.csv';
             files = dir(fullfile(filePattern));
             FP.beh0 = readtable(files.name); %imports beh data
@@ -96,7 +100,7 @@
             condition = strcmp(FP.beh0{:, 1}, Beh_var);  % Create a logical array
             condition_0 = strcmp(FP.beh0{:, 1}, Beh_var_0);
 
-            %% merge lick0 and lick1 12/13/2024
+            %% 
             if size(nonzeros(condition),1)>1 && size(nonzeros(condition_0),1)>1 && mergelick >0 
                 % Find all rows where 'Lick' contains 'lick0' and replace with 'lick1'
                 FP.beh0.Event = strrep(FP.beh0.Event, 'Lick0', 'Lick1');
@@ -105,7 +109,7 @@
                 condition_0 = strcmp(FP.beh0{:, 1}, Beh_var_0);
             end
 
-            %% Strange change of the sync time when using the new workflow
+            %% Change of the sync time when using the new workflow
             str = fileread(files.name);
             substr = 'CompTime';
             if contains(str,substr)==1
@@ -115,7 +119,7 @@
             end
 
             filePattern = 'FPData_CompTime*.csv';
-            files_old = dir(fullfile(filePattern));  %% exsited in 2023 data
+            files_old = dir(fullfile(filePattern));  %% exsited in old data
             if isempty(files_old)
 %                 FP.timesync = FP.raw(:,4);
                 FP.timesync = FP.raw(:,SynCol);
@@ -132,7 +136,7 @@
             FP.data(:,3) = FP.data(:,3) * Zoom_415;
 
             %% 
-            FP.fr = 1/mean(diff(FP.data(:,1))); %ZZ after 06/15/2024 calculate framerate
+            FP.fr = 1/mean(diff(FP.data(:,1))); % calculate framerate
 
             if Beh_edit==0
                 FP.beh = FP.beh0{condition, 3};  % Extract values from the third column
@@ -143,7 +147,6 @@
                 condition_feed_0 = logical(mod(condition_0 + 1, 2));
                 FP.feed_0 = FP.beh0{condition_feed_0, 3};  % Extract feed values                
                 
-            % writematrix(FP.beh, 'Lick_data_sanitized.csv');
             else
                 FP.beh = readmatrix('Lick_data_sanitized.csv'); %imports behavior timestamps only for mice1 day1
                 FP.beh_0 = readmatrix('Lick_data_sanitized.csv'); %imports behavior timestamps only for mice1 day1
@@ -155,7 +158,6 @@
             end
     
             %% correcting for photobleaching
-
             %%
             figure
             tiledlayout(4,1)
@@ -205,8 +207,7 @@
                 disp('Fit: Scaled 415 for each chunk')
 
             end
- 
-            
+
             plot(FP.data(:,3),'LineWidth',2) %plot raw 415 FP.lin_fit_415
             hold on
             Ratio = mean(FP.data(:,3))/mean(FP.data(:,2));
@@ -224,7 +225,6 @@
             ax2 = nexttile;
             plot(FP.data(:,2),'k') %plot raw 470
             hold on
-%             plot(FP.data(:,6)/mean(FP.data(:,6))*mean(FP.data(:,2))/1.2,'r','LineWidth',0.2); hold on;
             plot(FP.lin_fit,'LineWidth',1) %overlay fit
             box off
             title('Scaled Piecewise linear interpolation fit over raw 470 data(black)')
@@ -233,7 +233,6 @@
 
             ax3 = nexttile;
             plot(FP.data(:,4),'b','LineWidth',0.3); hold on;
-%             plot(FP.data(:,6)/mean(FP.data(:,6))*mean(FP.data(:,4))/1.2,'r','LineWidth',0.2); hold on;
             xlabel('frame number')
             ylabel('normalized F')
 %             set(gca,'YTickLabel','', 'YTick', [])
@@ -253,24 +252,24 @@
                     error = 1;
                 end
             end
-           %find nearest photometry frame using computer timestamps
-            for i = 1:length(FP.feed(:,1))
-                if ~isempty(find(FP.timesync(:,1)>=FP.feed(i),1))
-                    feed_norm(i) = find(FP.timesync(:,1)>=FP.feed(i),1); %find the nearest larger photometry frame using computer timestamps
-                else
-                    disp('time sync error2')
-                    error = 1;
-                end
-            end
-            %find nearest photometry frame using computer timestamps
-            for i = 1:length(FP.stim(:,1))
-                if ~isempty(find(FP.timesync(:,1)>=FP.stim(i),1))
-                    stim_norm(i) = find(FP.timesync(:,1)>=FP.stim(i),1); %find the nearest larger photometry frame using computer timestamps
-                else
-                    disp('time sync error3')
-                    error = 1;
-                end
-            end
+%            %find nearest photometry frame using computer timestamps
+%             for i = 1:length(FP.feed(:,1))
+%                 if ~isempty(find(FP.timesync(:,1)>=FP.feed(i),1))
+%                     feed_norm(i) = find(FP.timesync(:,1)>=FP.feed(i),1); %find the nearest larger photometry frame using computer timestamps
+%                 else
+%                     disp('time sync error2')
+%                     error = 1;
+%                 end
+%             end
+%             %find nearest photometry frame using computer timestamps
+%             for i = 1:length(FP.stim(:,1))
+%                 if ~isempty(find(FP.timesync(:,1)>=FP.stim(i),1))
+%                     stim_norm(i) = find(FP.timesync(:,1)>=FP.stim(i),1); %find the nearest larger photometry frame using computer timestamps
+%                 else
+%                     disp('time sync error3')
+%                     error = 1;
+%                 end
+%             end
             
             
             if ~isempty(files_old)
@@ -290,19 +289,16 @@
                 stim_norm = FP.raw(stim_norm,2); %convert to photometry time
             else
                 beh_norm = beh_norm(beh_norm>1); % sometimes the first Beh timestamps are not valid for analysis
-%                 beh_norm = FP.timesync(beh_norm,2); %finish conversion to photometry frame
                 beh_norm = beh_norm(beh_norm<length(FP.raw(:,2)));
                 beh_norm = FP.raw(beh_norm,2); %%%%%%%%%%%convert to photometry time
                 
                 feed_norm = feed_norm(feed_norm>1); % sometimes the first Beh timestamps are not valid for analysis
-%                 feed_norm = FP.timesync(feed_norm,2); %finish conversion to photometry frame
                 feed_norm = feed_norm(feed_norm<length(FP.raw(:,2)));
                 feed_norm = FP.raw(feed_norm,2); %convert to photometry time
             end             
 
         %%  assign feeding to the laser on/off periods
-            Feed_all = feed_norm - FP.raw(1,2) - DeltaT;            
-%             stim_all = stim_norm - FP.raw(1,2)- DeltaT;   
+            Feed_all = feed_norm - FP.raw(1,2) - DeltaT;             
             Beh_all = beh_norm - FP.raw(1,2)- DeltaT;   
             Lick_onid = [];% find which behaviors belongs to the on period;
             Lick_offid = [];% calculate mode(T/120), if it =
@@ -353,7 +349,6 @@
             set(gcf, 'color', [1 1 1])
             hold off
             saveas(gcf, 'Raw_Beh_F.fig');
-
             filename = 'licks.csv';
             csvwrite(filename,Beh_all);
 
@@ -365,7 +360,6 @@
             end
 
             if ~isempty(False_time)
-    %              find(Beh_all>=False_time(1)&Beh_all<=False_time(2));
                 Beh_all = Beh_all(Beh_all<=False_time(1)| Beh_all>=False_time(2));
                 Feed_all = Feed_all(Feed_all<=False_time(1)|Feed_all>=False_time(2));
                 Opto_stim = Opto_stim(Opto_stim<=False_time(1)|Opto_stim>=False_time(2));
@@ -399,7 +393,6 @@
                 Feed_allid = 1: length(Feed_all); 
 
                 feed_norm = Feed_all + FP.raw(1,2) + DeltaT;            
-%                 stim_norm = stim_all + FP.raw(1,2) + DeltaT;   
                 beh_norm = Beh_all + FP.raw(1,2) + DeltaT;  
                 
             end
@@ -420,15 +413,9 @@
             %% add BoutL_off_lickF, BoutL_S_LickF for the analysis
                 [BoutL_off_lickF, BoutL_S_LickF, Lickrt_S,Lickrt_No,avgS,avgNo,boutL_S,boutL_No,boutN_S,boutN_No,boutL_ST,boutL_NoT,ILI_OFF,ILI_S]= ...
                 lickrate_2blocks(loading_evt,FP.min_lick_interval2,Lick_time,Feed_time,Cam_time,StimS,StimE,Stim_offS,Stim_offE);    
-%                 
                 Feed_info_all.boutstart_new = {[boutL_ST{1},boutL_NoT{1}]'};
                 Feed_info_all.boutduration_new = [boutL_S{1},boutL_No{1}];
-
                 saveas(gcf, ['Beh_lickrate_2blocks_', num2str(Half),'.fig']);
-                disp('Bout_duration in Laser on')
-                disp(mean(boutL_S{1, 1}))
-                disp('Bout_duration in Laser off')
-                disp(mean(boutL_No{1, 1}))
 
                 %% plot for ISI
                 % Example Data (Replace with Actual Data)
@@ -450,7 +437,6 @@
                 mode_noncont = xi_noncont(idx_noncont); % Most common value for ILI_noncont
 
             end
-
 
         for aa = Period_show  % on and off 
             if aa == 1
@@ -480,8 +466,8 @@
             Boutduration = Feed_info.boutduration{1, 1};
 
             %% Analysis for behaviors
-            bin = 1/FP.fr;  %% 20HZ
-            interval = 1/FP.fr; %% 20HZ
+            bin = 1/FP.fr;  %% 
+            interval = 1/FP.fr; %% 
             FP.bl = round(FP.fr*basal_time); %number of datapoints before event 
             FP.seg_dur = round(FP.fr*odor_time); %number of datapoints after event 
             counter = 1;
@@ -513,7 +499,6 @@
             values = FP.data(:,4);
             values_415 = FP.data(:,5);
             %% find the non-behavioral baseline 
-        %     Feed_info_all = Boutinfo(beh_norm(Lick_allid,:),beh_norm(Lick_allid,:),FP.min_lick_interval*1000);
             wholeTimepoints = FP.data(:,1);  % Whole timepoints
             startBehaviors = Feed_info_all.boutstart{1, 1};  % Start of behavior timepoints
             endBehaviors = Feed_info_all.boutend{1, 1};  % End of behavior timepoints
@@ -538,12 +523,9 @@
             end
 
             %%  calcium data
-            NorF_whole =[]; 
             odor_time_whole = max(ceil(max(Boutduration)),odor_time);
-
             [NorF_whole,~,~] = psth_wave2(trigger_times,interval,values,basal_time,odor_time_whole,control_time(1),control_time(2),offset,z_score,Bout_off);  
 
-            NorF_original =[];
             [NorF_original,~,~] = psth_wave2(trigger_times,interval,values,basal_time,odor_time,control_time(1),control_time(2),offset,z_score,Bout_off);  
             Bout_off_415 = values_415(indicesWithoutBehaviors);
             [NorF_original_415,~,~] = psth_wave2(trigger_times,interval,values_415,basal_time,odor_time,control_time(1),control_time(2),offset,z_score,Bout_off_415);  
@@ -597,11 +579,10 @@
             Episode = FP.bl+Duration_i*FP.fr; 
             X = round(FP.bl:Episode);% x position x the signals
 
-            %% replace round to ceil, use the single licking bout data
+            %% replace round to ceil
             if fix_singlespout == 1
                 X = round(FP.bl:round(Episode));% x position x the signals
             end
-            
 
             if length(X) == 1
                 AUC(Ti) = NorF(Ti,X); 
@@ -619,7 +600,6 @@
 
             AUC_S(Ti)= AUC(Ti)/Duration_i;
 
-            
         end
         [~,sort_id_auc] = sort(AUC,'descend');
         [~,sort_id_peak] = sort(PeakF,'descend');      
@@ -649,7 +629,6 @@
         imagesc(FP.ERF_time,1:size(smoothed_data,1),smoothed_data)                                                                  %%%%%%%%%%%20180312  do not delete
         colormap(mycmap);
         caxis([-2, 5]); % Set the colorbar range
-        % caxis([-0.5, 1]); % Set the colorbar range
         hold on;
 
         for Ti=1:length(X1)
@@ -662,8 +641,6 @@
         if Episode > FP.bl+FP.seg_dur
             Episode = FP.bl+FP.seg_dur;
         end
-        % Episode = [FP.bl:FP.bl + Episode];
-        % PeakF(Ti) = max(NorF(Ti, Episode));
         end
         xline(0, 'k--'); % The 'r--' specifies the line style (red dashed)
         h = colorbar;
@@ -688,7 +665,6 @@
         imagesc(FP.ERF_time,1:size(smoothed_data,1),smoothed_data)                                                                  %%%%%%%%%%%20180312  do not delete
         colormap(mycmap);
         caxis([-2, 5]); % Set the colorbar range
-        % caxis([-0.5, 1]); % Set the colorbar range
         hold on;
 
         for Ti=1:length(X1)
@@ -712,9 +688,7 @@
         for i = 1:size(NorF_original, 1)
             NorF_original(i, :) = smoothdata(NorF_original(i, :), 'movmean', smooth_factor);
         end
-
-        subplot(3,2,3)  
-
+        subplot(3,2,3)
         %% Edit, plot the sem of within bout data; 
         % Replace NaN columns with zeros
         NorF_nan(NorF_nan == -100) = nan;
@@ -737,8 +711,6 @@
 
        % Smooth each row with a factor
         for i = 1:size(NorF_original, 1)
-%             NorF_original_all_ANM(i, :) = smoothdata(NorF_original_all_ANM(i, :), 'movmean', smooth_factor);
-
             % Find indices of non-NaN values
             non_nan_indices = find(~isnan(NorF_original(i, :)));
             % Smooth only the non-NaN values
@@ -746,20 +718,19 @@
         end
 
         plot(FP.ERF_time,nanmean(NorF_original),'r', 'LineWidth', 1.5); hold on;
-
-            meanData = nanmean(NorF_original);
-            semData = nanstd(NorF_original, 0, 1)/ sqrt(size(NorF_original, 1)); % Standard Error of the Mean
-            timeValues = FP.ERF_time;
-            % Smooth the mean data
-            smoothMeanData = meanData;
-            % Calculate the upper and lower bounds for the SEM shading
-            upperBound = smoothMeanData + semData;
-            lowerBound = smoothMeanData - semData; 
-             upperBound (isnan(upperBound))=0;
-             lowerBound (isnan(lowerBound))=0;
-            % Create the shaded area for SEM in very dim magenta
-            fill([timeValues, fliplr(timeValues)], [upperBound, (fliplr(lowerBound))], [1, 0, 1], 'FaceAlpha', 0.1, 'EdgeColor', 'none');
-            hold on;
+        meanData = nanmean(NorF_original);
+        semData = nanstd(NorF_original, 0, 1)/ sqrt(size(NorF_original, 1)); % Standard Error of the Mean
+        timeValues = FP.ERF_time;
+        % Smooth the mean data
+        smoothMeanData = meanData;
+        % Calculate the upper and lower bounds for the SEM shading
+        upperBound = smoothMeanData + semData;
+        lowerBound = smoothMeanData - semData; 
+         upperBound (isnan(upperBound))=0;
+         lowerBound (isnan(lowerBound))=0;
+        % Create the shaded area for SEM in very dim magenta
+        fill([timeValues, fliplr(timeValues)], [upperBound, (fliplr(lowerBound))], [1, 0, 1], 'FaceAlpha', 0.1, 'EdgeColor', 'none');
+        hold on;
         
         mean_duration = mean(Boutduration);
         xlabel('Time (s)')
@@ -785,8 +756,6 @@
         subplot(3,2,4)
         % Sample data
         sort_id = sort_id_original;
-%         NorF = NorF_original(sort_id,:);
-%         X1 = Boutduration(sort_id,:);
         x = (1:length(sort_id))';
         y = (AUC(sort_id))';
         %Visualize the regression
@@ -794,20 +763,20 @@
         hold on;
 % 
         if size(x,1)>2
-                        % Perform robust linear regression using robustfit
-                        [b, stats] = robustfit(x, y);
-                                % Get the coefficients from the robust fit
-                                intercept = b(1);
-                                slope = b(2);
-                                % Get the p-value for the slope coefficient
-                                p = stats.p(2);
-                                % Calculate the correlation coefficient (R)
-                                r = corr(x, y);
-                                % Plot the robust regression line
-                                x_range = min(x):0.1:max(x);
-                                y_fit = intercept + slope * x_range;
-                                plot(x_range, y_fit, 'r', 'LineWidth', 1);hold on;
-                                title(['r = ', num2str(round(r, 3)), '; p = ', num2str(p),'; Slope = ', num2str(round(slope, 3))], 'FontSize', 8);
+                % Perform robust linear regression using robustfit
+                [b, stats] = robustfit(x, y);
+                % Get the coefficients from the robust fit
+                intercept = b(1);
+                slope = b(2);
+                % Get the p-value for the slope coefficient
+                p = stats.p(2);
+                % Calculate the correlation coefficient (R)
+                r = corr(x, y);
+                % Plot the robust regression line
+                x_range = min(x):0.1:max(x);
+                y_fit = intercept + slope * x_range;
+                plot(x_range, y_fit, 'r', 'LineWidth', 1);hold on;
+                title(['r = ', num2str(round(r, 3)), '; p = ', num2str(p),'; Slope = ', num2str(round(slope, 3))], 'FontSize', 8);
         
         end
 
@@ -833,21 +802,21 @@
         scatter(x, y, 5,'k', 'filled');  % Blue dots for data points
         hold on;
         if size(x,1)>2
-%                 % Perform robust linear regression using robustfit
-                [b, stats] = robustfit(x, y);
-                    intercept = b(1);
-                    slope = b(2);
-                    % Get the p-value for the slope coefficient
-                    p = stats.p(2);
-                    % Calculate the correlation coefficient (R)
-                    r = corr(x, y);
+%           % Perform robust linear regression using robustfit
+            [b, stats] = robustfit(x, y);
+            intercept = b(1);
+            slope = b(2);
+            % Get the p-value for the slope coefficient
+            p = stats.p(2);
+            % Calculate the correlation coefficient (R)
+            r = corr(x, y);
 
-                    % Plot the robust regression line
-                    x_range = min(x):0.1:max(x);
-                    y_fit = intercept + slope * x_range;
-                    plot(x_range, y_fit, 'r', 'LineWidth', 1);hold on;
-                    % Calculate the confidence intervals for the coefficients
-                    title(['r = ', num2str(round(r, 3)), '; p = ', num2str(p),'; Slope = ', num2str(round(slope, 3))], 'FontSize', 8);
+            % Plot the robust regression line
+            x_range = min(x):0.1:max(x);
+            y_fit = intercept + slope * x_range;
+            plot(x_range, y_fit, 'r', 'LineWidth', 1);hold on;
+            % Calculate the confidence intervals for the coefficients
+            title(['r = ', num2str(round(r, 3)), '; p = ', num2str(p),'; Slope = ', num2str(round(slope, 3))], 'FontSize', 8);
         title(['r = ', num2str(round(r, 3)), '; p = ', num2str(p),'; Slope = ', num2str(round(slope, 3))], 'FontSize', 8);
         end
                     grid off;
@@ -877,23 +846,22 @@
         hold on;
         if size(x,1)>2
 %                 % Perform robust linear regression using robustfit
-                [b, stats] = robustfit(x, y);
-                % Get the coefficients from the robust fit
-                intercept = b(1);
-                slope = b(2);
-                % Get the p-value for the slope coefficient
-                p = stats.p(2);
-                % Calculate the correlation coefficient (R)
-                r = corr(x, y);
+            [b, stats] = robustfit(x, y);
+            % Get the coefficients from the robust fit
+            intercept = b(1);
+            slope = b(2);
+            % Get the p-value for the slope coefficient
+            p = stats.p(2);
+            % Calculate the correlation coefficient (R)
+            r = corr(x, y);
 
 
-                % Plot the robust regression line
-                x_range = min(x):0.1:max(x);
-                y_fit = intercept + slope * x_range;
-                plot(x_range, y_fit, 'r', 'LineWidth', 1);hold on;
-                % Calculate the confidence intervals for the coefficients
-                
-                        title(['r = ', num2str(round(r, 3)), '; p = ', num2str(p),'; Slope = ', num2str(round(slope, 3))], 'FontSize', 8);
+            % Plot the robust regression line
+            x_range = min(x):0.1:max(x);
+            y_fit = intercept + slope * x_range;
+            plot(x_range, y_fit, 'r', 'LineWidth', 1);hold on;
+            % Calculate the confidence intervals for the coefficients
+            title(['r = ', num2str(round(r, 3)), '; p = ', num2str(p),'; Slope = ', num2str(round(slope, 3))], 'FontSize', 8);
         end
         grid off;
         legend('off');
@@ -907,7 +875,6 @@
         set(gcf, 'color', [1 1 1])
         
         boutDuration_onoff{aa,1} = Feed_info.boutduration{1, 1};
-%         boutLickRate_onoff{aa,1} = Feed_info.boutLickRate_all{1, 1};
         
         clearvars -except Detectionerror BoutL_off_lickF BoutL_S_LickF intervalLength fix_singlespout threshold_415 Beh_edit Beh_var_0 Beh_var ILI_OFF ILI_S plot_415 z_score Beh_all Beh_all_0 Beh_all_1 gcf Half aa Period_show Lickrt_S Lickrt_No avgS avgNo boutL_S boutL_No boutN_S boutN_No ...
         sort_id_original sort_id_bout NorF_whole NorF_original NorF_original_415 meanWithoutNaN Boutduration z_score FP PeakF AUC ...
