@@ -22,18 +22,9 @@ The analysis code and data associated with Zhu et al. "Hedonic eating is control
 ### Updates #
 - Released the github page, code and data on 01/06/25
 
-## Installation #
+### Installation #
 Data collection are based on Arduino and Bonsai;
 Analysis are based on MATLAB R2022B and R studio;
-```
-   install Arduino
-```
-   install Bonsai
-```
-   install MATLAB
-```
-   install R
-```
 
 ## Modules #
 
