@@ -9,7 +9,6 @@
       * [NBGLMM](#NBGLMM)
    * [Data](#Data)
       * [Photometry data](#example-data)
-      * [Source data](#Source-data)
    * [Additional information](#additional-information)
       * [Reference](#reference)
       * [Contributors](#contributors)
@@ -42,9 +41,6 @@ This repository contains the analysis code and data associated with Zhu et al., 
 
 ### Photometry data #
 - This repository includes related fiber photometry data from example mice for signal extraction. For additional data requests, please contact the authors. <br/>
-
-### Source data #
-- Source data for each figure are also provided.
 
 ## Additional information #
 
