@@ -28,7 +28,7 @@ This repository contains the analysis code and data associated with Zhu et al., 
 
 ### Data collection #
 - Behavioral data were collected using custom Arduino code to extract and analyze behavioral events. These data were analyzed using MATLAB.
-- For more details, see the code and details in the [periLC paper](https://www.sciencedirect.com/science/article/pii/S0092867420309399), and the [CaRMA paper](https://www.science.org/doi/10.1126/science.abb2494). <br/>
+- For more details, refer to the data collection code and the methods section in the [periLC paper](https://www.sciencedirect.com/science/article/pii/S0092867420309399). <br/>
 
 ### Photometry analysis #
 - Fiber photometry data were recorded and extracted using the [FP3002 system (Neurophotometrics, CA)](https://neurophotometrics.com/). Fluorescent signals and behavioral events were collected with a [Bonsai workflow](https://bonsai-rx.org/). MATLAB was used to analyze fiber-photometry recordings and associated behavioral data.
